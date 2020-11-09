@@ -53,24 +53,23 @@ const Profile = (props) => {
                 'user',
                 JSON.stringify({
                   ...state,
-                  profilePic: result.data.profilePic,
+                  profilePic: result.profilePic,
                 }),
               )
               dispatch({
                 type: 'UPDATEPROFILEPIC',
-                payload: result.data.profilePic,
+                payload: result.profilePic,
               })
             })
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-    }
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+          // window.location.reload()
+        }
   }, [image])
   const updatePhoto = (file) => {
     setImage(file)
-
-    // window.location.reload()
   }
 
   return (
@@ -120,21 +119,13 @@ const Profile = (props) => {
             <input
               type="file"
               onChange={(e) => {
-                setImage(e.target.files[0])
+                updatePhoto(e.target.files[0])
               }}
             />
           </div>
           <div className="file-path-wrapper">
             <input className="file-path validate" type="text" />
           </div>
-          <button
-            className="btn waves-effect waves-light #64b5f6 blue darken-1"
-            onClick={(file) => {
-              updatePhoto(file)
-            }}
-          >
-            Submit
-          </button>
         </div>
       </div>
       <div className="gallery">

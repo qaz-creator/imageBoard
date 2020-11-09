@@ -90,7 +90,7 @@ router.put('/updateprofilepic', requireLogin, (req, res) => {
     req.user._id,
     {
       $set: {
-        profilePic,
+        profilePic: req.body.profilePic,
       },
     },
     { new: true },
