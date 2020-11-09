@@ -3,20 +3,6 @@ const router = express.Router()
 const mongoose = require('mongoose')
 const Post = mongoose.model('Post')
 const requireLogin = require('../middleware/requireLogin')
-const multer = require('multer')
-const path = require('path')
-const shortid = require('shortid')
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(path.dirname(__dirname), 'uploads'))
-  },
-  filename: function (req, file, cb) {
-    cb(null, shortid.generate() + '-' + file.originalname)
-  },
-})
-
-const upload = multer({ storage })
 
 router.get('/allpost', (req, res) => {
   Post.find()
@@ -34,7 +20,7 @@ router.get('/allpost', (req, res) => {
 // get the post of my following
 router.get('/getsubpost', (req, res) => {
   // if postedby in the following list
-  Post.find({postedBy:{$in:req.user.following}})
+  Post.find({ postedBy: { $in: req.user.following } })
     //   to expand postedBy,show id and name
     .populate('postedBy', '_id name')
     .populate('comments.postedBy', '_id name')
@@ -46,8 +32,8 @@ router.get('/getsubpost', (req, res) => {
     })
 })
 
-router.post('/createpost', requireLogin, upload.single('photo'), (req, res) => {
-  const { title, body } = req.body
+router.post('/createpost', requireLogin, (req, res) => {
+  const { title, body, photo } = req.body
 
   // let photo = []
 
@@ -61,7 +47,7 @@ router.post('/createpost', requireLogin, upload.single('photo'), (req, res) => {
   const post = new Post({
     title,
     body,
-    photo: 'http://localhost:5000/public/' + req.file.filename,
+    photo,
     postedBy: req.user,
   })
   post

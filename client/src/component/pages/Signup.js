@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import M from 'materialize-css'
 import axios from 'axios'
@@ -13,26 +13,25 @@ const Signup = (props) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [image, setImage] = useState('')
+  const [url, setUrl] = useState(undefined)
 
+  useEffect(() => {
+    if (url) {
+      uploadFields()
+    }
+  }, [url])
   const uploadProfilePic = () => {
     const data = new FormData()
-    data.append('profilePic', image)
-    data.append('name', name)
-    data.append('email', email)
-    data.append('password', password)
-
-    axios
-      .post('/signup', data)
+    data.append('file', image)
+    data.append('upload_preset', 'instagram')
+    data.append('cloud_name', 'ddlmfrw8i')
+    fetch('https://api.cloudinary.com/v1_1/ddlmfrw8i/image/upload', {
+      method: 'post',
+      body: data,
+    })
+      .then((res) => res.json())
       .then((data) => {
-        if (data.error) {
-          M.toast({ html: data.error, classes: '#c62828 red darken-3' })
-        } else {
-          M.toast({
-            html: 'Created post Successfully',
-            classes: '#43a047 green darken-1',
-          })
-          history.push('/signin')
-        }
+        setUrl(data.url)
       })
       .catch((err) => {
         console.log(err)
@@ -45,18 +44,18 @@ const Signup = (props) => {
         email,
       )
     ) {
-      M.toast({ html: 'invalid email', classes: '#c62828 red darken-3' })
-      return
+      return M.toast({ html: 'invalid email', classes: '#c62828 red darken-3' })
     }
     fetch('/signup', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
       },
-      email: JSON.stringify({
+      body: JSON.stringify({
         name,
         email,
         password,
+        profilePic: url,
       }),
     })
       .then((res) => res.json())

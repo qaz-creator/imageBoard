@@ -12,30 +12,52 @@ const CreatePost = (props) => {
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [photo, setPhoto] = useState('')
+  const [url, setUrl] = useState('')
+
+  useEffect(() => {
+    if (url) {
+      fetch('/createpost', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `${window.localStorage.getItem('jwt')}`,
+        },
+        body: JSON.stringify({
+          title,
+          body,
+          photo: url,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.error) {
+            M.toast({ html: data.error, classes: '#c62828 red darken-3' })
+          } else {
+            M.toast({
+              html: 'Created post Successfully',
+              classes: '#43a047 green darken-1',
+            })
+            history.push('/')
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    }
+  }, [url])
 
   const postDetails = () => {
     const data = new FormData()
-    data.append('photo', photo)
-    data.append('title', title)
-    data.append('body', body)
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `${window.localStorage.getItem('jwt')}`,
-      },
-    }
-    axios
-      .post('/createpost', data, config)
+    data.append('file', photo)
+    data.append('upload_preset', 'instagram')
+    data.append('cloud_name', 'ddlmfrw8i')
+    fetch('https://api.cloudinary.com/v1_1/ddlmfrw8i/image/upload', {
+      method: 'post',
+      body: data,
+    })
+      .then((res) => res.json())
       .then((data) => {
-        if (data.error) {
-          M.toast({ html: data.error, classes: '#c62828 red darken-3' })
-        } else {
-          M.toast({
-            html: 'Created post Successfully',
-            classes: '#43a047 green darken-1',
-          })
-          history.push('/')
-        }
+        setUrl(data.url)
       })
       .catch((err) => {
         console.log(err)

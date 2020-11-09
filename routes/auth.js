@@ -7,27 +7,12 @@ const jwt = require('jsonwebtoken')
 const { JWT_SECRET } = require('../config/keys')
 const requireLogin = require('../middleware/requireLogin')
 
-const multer = require('multer')
-const path = require('path')
-const shortid = require('shortid')
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(path.dirname(__dirname), 'profilePics'))
-  },
-  filename: function (req, file, cb) {
-    cb(null, shortid.generate() + '-' + file.originalname)
-  },
-})
-
-const upload = multer({ storage })
-
 router.get('/', requireLogin, (req, res) => {
   res.json(req.user)
 })
 
-router.post('/signup', upload.single('profilePic'), (req, res) => {
-  const { name, email, password } = req.body
+router.post('/signup', (req, res) => {
+  const { name, email, password, profilePic } = req.body
   if (!email || !password || !name) {
     return res.status(422).json({ error: 'please add all the field' })
   }
@@ -42,7 +27,7 @@ router.post('/signup', upload.single('profilePic'), (req, res) => {
           name,
           email,
           password: hashedPassword,
-          profilePic: 'http://localhost:5000/profile/' + req.file.filename,
+          profilePic,
         })
         user
           .save()

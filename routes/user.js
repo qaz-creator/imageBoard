@@ -4,20 +4,6 @@ const mongoose = require('mongoose')
 const Post = mongoose.model('Post')
 const User = mongoose.model('User')
 const requireLogin = require('../middleware/requireLogin')
-const multer = require('multer')
-const path = require('path')
-const shortid = require('shortid')
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(path.dirname(__dirname), 'profilePics'))
-  },
-  filename: function (req, file, cb) {
-    cb(null, shortid.generate() + '-' + file.originalname)
-  },
-})
-
-const upload = multer({ storage })
 
 router.get('/user/:id', requireLogin, (req, res) => {
   User.findOne({ _id: req.params.id })
@@ -99,26 +85,21 @@ router.put('/unfollow', requireLogin, (req, res) => {
   )
 })
 
-router.put(
-  '/updateprofilepic',
-  requireLogin,
-  upload.single('profilePic'),
-  (req, res) => {
-    User.findByIdAndUpdate(
-      req.user._id,
-      {
-        $set: {
-          profilePic: 'http://localhost:5000/profile/' + req.file.filename,
-        },
+router.put('/updateprofilepic', requireLogin, (req, res) => {
+  User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        profilePic,
       },
-      { new: true },
-      (err, result) => {
-        if (err) {
-          return res.status(422).json({ error: 'pic can not post' })
-        }
-        res.json(result)
-      },
-    )
-  },
-)
+    },
+    { new: true },
+    (err, result) => {
+      if (err) {
+        return res.status(422).json({ error: 'pic can not post' })
+      }
+      res.json(result)
+    },
+  )
+})
 module.exports = router

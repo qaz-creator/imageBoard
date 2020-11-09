@@ -24,31 +24,55 @@ const Profile = (props) => {
       })
   }, [])
 
-  const updatePhoto = () => {
-    const data = new FormData()
-    data.append('profilePic', image)
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `${window.localStorage.getItem('jwt')}`,
-      },
+  useEffect(() => {
+    if (image) {
+      const data = new FormData()
+      data.append('file', image)
+      data.append('upload_preset', 'instagram')
+      data.append('cloud_name', 'ddlmfrw8i')
+      fetch('https://api.cloudinary.com/v1_1/ddlmfrw8i/image/upload', {
+        method: 'post',
+        body: data,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          fetch('/updateprofilepic', {
+            method: 'put',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `${window.localStorage.getItem('jwt')}`,
+            },
+            body: JSON.stringify({
+              profilePic: data.url,
+            }),
+          })
+            .then((res) => res.json())
+            .then((result) => {
+              console.log(result)
+              localStorage.setItem(
+                'user',
+                JSON.stringify({
+                  ...state,
+                  profilePic: result.data.profilePic,
+                }),
+              )
+              dispatch({
+                type: 'UPDATEPROFILEPIC',
+                payload: result.data.profilePic,
+              })
+            })
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     }
-    axios
-      .put('/updateprofilepic', data, config)
-      .then((result) => {
-        console.log(result)
-        localStorage.setItem(
-          'user',
-          JSON.stringify({ ...state, profilePic: result.data.profilePic }),
-        )
-        dispatch({ type: 'UPDATEPROFILEPIC', payload: result.data.profilePic })
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-    console.log(state)
-    window.location.reload()
+  }, [image])
+  const updatePhoto = (file) => {
+    setImage(file)
+
+    // window.location.reload()
   }
+
   return (
     <div style={{ maxWidth: '550px', margin: '0px auto' }}>
       <div
@@ -105,8 +129,8 @@ const Profile = (props) => {
           </div>
           <button
             className="btn waves-effect waves-light #64b5f6 blue darken-1"
-            onClick={() => {
-              updatePhoto()
+            onClick={(file) => {
+              updatePhoto(file)
             }}
           >
             Submit
