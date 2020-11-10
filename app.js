@@ -11,10 +11,6 @@ require('./models/post')
 app.use(express.json())
 app.use('/', express.static(__dirname + '/'))
 
-//to make the images visible in the browser
-app.use('/public', express.static(path.join(__dirname, 'uploads')))
-app.use('/profile', express.static(path.join(__dirname, 'profilePics')))
-
 // routes
 app.use(require('./routes/auth'))
 app.use(require('./routes/post'))

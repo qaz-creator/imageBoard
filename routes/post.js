@@ -18,7 +18,7 @@ router.get('/allpost', (req, res) => {
 })
 
 // get the post of my following
-router.get('/getsubpost', (req, res) => {
+router.get('/getsubpost', requireLogin, (req, res) => {
   // if postedby in the following list
   Post.find({ postedBy: { $in: req.user.following } })
     //   to expand postedBy,show id and name
@@ -146,5 +146,16 @@ router.delete('/deletepost/:postId', requireLogin, (req, res) => {
       }
     })
 })
+
+// router.delete('/deletecomment/:postId/:commentId', requireLogin, (req, res) => {
+//   Post.findOne({ _id: req.params.postId })
+//     // .populate('comments', '_id', 'postedBy')
+//     .exec((err, post) => {
+//       const comments = post.comments
+//       comments.filter((comment) => comment._id != req.params.commentId)
+
+//       res.json(comments)
+//     })
+// })
 
 module.exports = router

@@ -52,7 +52,7 @@ const Navbar = (props) => {
     <nav>
       <div className="nav-wrapper white">
         <Link to={state ? '/' : '/signin'} className="brand-logo left">
-          Instagram
+          ImageBoard
         </Link>
         <ul id="nav-mobile" className="right">
           {renderList()}
